@@ -11,6 +11,7 @@ class Nakama {
         this.gameSetter = null;
         this.matchId = null;
         this.updater = null;
+        this.matchData = null;
 
         this.socket.onmatchmakermatched = async (matchmakerMatched) => {
             const match = await this.socket.joinMatch(matchmakerMatched.match_id)
@@ -65,6 +66,15 @@ class Nakama {
     async updateUsername(name) {
         this.username = name
         await this.client.updateAccount(this.session, this.username)
+    }
+
+    /**
+     * Retrieves the leaderboard for the current game.
+     * @returns {Promise} resolves to the leaderboard records
+     */
+    async getCurrentGameLeaderboard() {
+        const ownerIds = Object.keys(this.matchData.players)
+        return await this.client.listLeaderboardRecords(this.session, "tictactoe_stats", ownerIds, 2)
     }
 }
 

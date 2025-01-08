@@ -2,66 +2,33 @@
 import { useEffect, useState } from 'react';
 import cn from 'classnames';
 import { getNakama } from '../../config/nakama';
+import Leaderboard from './leaderboard';
 
-const  data = {
-  "presences": {
-      "282fd326-cdce-11ef-8dd9-7106fdcb5b46": {
-          "Node": "nakama1",
-          "UserID": "59f22bba-300a-4617-b860-c858a3b3ccf0",
-          "SessionID": "282fd326-cdce-11ef-8dd9-7106fdcb5b46",
-          "Username": "12344",
-          "Reason": 0
-      },
-      "2ab5b045-cdce-11ef-8dd9-7106fdcb5b46": {
-          "Node": "nakama1",
-          "UserID": "cfb191ad-7bd3-4a27-b490-e597a9d2d1ee",
-          "SessionID": "2ab5b045-cdce-11ef-8dd9-7106fdcb5b46",
-          "Username": "5432",
-          "Reason": 0
-      }
-  },
-  "board": [
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      ""
-  ],
-  "state": 1,
-  "players": {
-      "59f22bba-300a-4617-b860-c858a3b3ccf0": "X",
-      "cfb191ad-7bd3-4a27-b490-e597a9d2d1ee": "O"
-  },
-  "next_turn": "59f22bba-300a-4617-b860-c858a3b3ccf0"
-}
-
-const TicTacToe = ({game}) => {
+const TicTacToe = () => {
 
   
   const [board, setBoard] = useState(Array(9).fill(''));
   const [nextSymbol, setNextSymbol] = useState('X');
   const [XName, setXName] = useState('');
+  const [Xid, setXid] = useState('');
+  const [Oid, setOid] = useState('');
   const [OName, setOName] = useState('');
   const [nakama, setNakama] = useState(null)
-  const [gameState, setGameState] = useState(1)
   const [winner, setWinner] = useState(null)
 
   const updateGameData = (gameData) => {
       for (const presence of Object.values(gameData.presences)) {
         if (gameData.players[presence.UserID] === 'X') {
+          setXid(presence.UserID)
           setXName(presence.Username)
         } else {
           setOName(presence.Username)
+          setOid(presence.UserID)
         }
       }
 
       setBoard(gameData.board)
       setNextSymbol(gameData.players[gameData.next_turn])
-      setGameState(gameData.state)
 
       if (gameData.state === 2) {
         const winner = gameData.players[gameData.winner]
@@ -105,17 +72,17 @@ const TicTacToe = ({game}) => {
   const status = winner ? `Winner: ${winner}` : `${nextSymbol} : turn`;
 
   return (
-    <div className="min-h-screen bg-teal-500 flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen bg-teal-500 flex flex-col items-center justify-center p-4 relative">
       {/* Game Info */}
       <div className="mb-8 flex justify-center flex-col items-center">
         <div className="flex gap-10 text-white mb-2 text-4xl">
           <div className='text-stone-800 flex flex-col items-center'>
-            <div>{XName}</div>
+            <div>{nakama.id === Xid ? "You" : XName}</div>
             <div>(X)</div>
           </div>
           {/* <div>Opp (O)</div> */}
           <div className='flex flex-col items-center'>
-            <div>{OName}</div>
+            <div>{nakama.id === Oid ? "You" : OName}</div>
             <div>(O)</div>
           </div>
         </div>
@@ -133,7 +100,7 @@ const TicTacToe = ({game}) => {
             className={cn("aspect-square border-2 rounded-sm bg-teal-500 text-white text-2xl md:text-4xl font-bold flex items-center justify-center transition-colors hover:bg-white/10 focus:outline-none outline-none",
                 { 'border-r-stone-900': (i+1) % 3 !== 0 },
                 { 'border-b-stone-900' : i < 6 },
-                { 'text-stone-800': square === 'X' },
+                { 'text-stone-800': square.toLowerCase() === 'x' },
             )}
           >
             {square}
@@ -149,6 +116,8 @@ const TicTacToe = ({game}) => {
       >
         Reset Game
       </button>
+
+      {winner && <Leaderboard />}
     </div>
   );
 };

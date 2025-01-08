@@ -20,7 +20,6 @@ const PlayerScreen = ({setGame})=> {
             }
             const nakama = getNakama()
             await nakama.getTokenWithAuthenticateDevice(machineId)
-            await nakama.updateDetails()
             setName(nakama.username)
             setSessionToken(nakama.session.token)
             setLoading(false)

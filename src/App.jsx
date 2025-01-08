@@ -7,9 +7,9 @@ import TicTacToe from './components/game/tic_tac_tow'
 function App() {
   const [game, setGame] = useState(null)
 
-  // if (!game) return <PlayerScreen setGame={setGame} />
+  if (!game) return <PlayerScreen setGame={setGame} />
 
-  return <TicTacToe />
+  return <TicTacToe game={game} />
 
 }
 

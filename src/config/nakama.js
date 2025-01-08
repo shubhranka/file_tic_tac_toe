@@ -7,27 +7,44 @@ class Nakama {
         this.token = null;
         this.socket = this.client.createSocket(false,false)
         this.username = null;
+        this.id = null;
         this.gameSetter = null;
+        this.matchId = null;
+        this.updater = null;
 
         this.socket.onmatchmakermatched = async (matchmakerMatched) => {
-            console.log("matchmakerMatched", matchmakerMatched)
             const match = await this.socket.joinMatch(matchmakerMatched.match_id)
+            this.matchId = matchmakerMatched.match_id
             this.gameSetter(match)
         };
+
+        this.socket.onmatchdata = (matchData) => {
+            const decoder = new TextDecoder('utf-8');
+            const jsonData = decoder.decode(matchData.data);
+            const gameState = JSON.parse(jsonData);
+            this.matchData = gameState
+            console.log("match data", gameState)
+            if (this.updater) {
+                this.updater(gameState)
+            }
+        }
     }
 
+
+
     async findPlayers() {
-        const matchTicket = await this.socket.addMatchmaker(null, 2, 2)
-        console.log("matchTicket", matchTicket)
+        await this.socket.addMatchmaker(null, 2, 2)
     }
 
     async getTokenWithAuthenticateDevice(machineId) {
         this.session = await this.client.authenticateDevice(machineId, false)
+        await this.updateDetails()
         return this.session.token
     }
 
     async getTokenWithAuthenticateDeviceWithName(machineId, create, name) {
         this.session = await this.client.authenticateDevice(machineId, create, name)
+        await this.updateDetails()
         return this.session.token
     }
 
@@ -35,9 +52,14 @@ class Nakama {
         await this.socket.connect(this.session)
     }
 
+    fillDetails(details) {
+        this.username = details.user.username
+        this.id = details.user.id
+    }
+
     async updateDetails() {
         const details = await this.client.getAccount(this.session)
-        this.username = details.user.username
+        this.fillDetails(details)
     }
 
     async updateUsername(name) {
@@ -48,9 +70,12 @@ class Nakama {
 
 // console.log(nakama)
 
+/**
+ * Returns an instance of Nakama, creating one if it doesn't exist.
+ * @returns {Nakama} the Nakama instance
+ */
 export const getNakama = () => {
 
-    console.log(nakama, "nakama")
     if (nakama) return nakama
     nakama = new Nakama("defaultkey", "localhost", 7350, false, 10000, true)
     console.log("nakama created")

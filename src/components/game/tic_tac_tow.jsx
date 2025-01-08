@@ -47,6 +47,8 @@ const TicTacToe = ({game}) => {
   const [XName, setXName] = useState('');
   const [OName, setOName] = useState('');
   const [nakama, setNakama] = useState(null)
+  const [gameState, setGameState] = useState(1)
+  const [winner, setWinner] = useState(null)
 
   const updateGameData = (gameData) => {
       for (const presence of Object.values(gameData.presences)) {
@@ -59,6 +61,12 @@ const TicTacToe = ({game}) => {
 
       setBoard(gameData.board)
       setNextSymbol(gameData.players[gameData.next_turn])
+      setGameState(gameData.state)
+
+      if (gameData.state === 2) {
+        const winner = gameData.players[gameData.winner]
+        setWinner(winner)
+      }
   }
   
   useEffect(() => {
@@ -79,22 +87,6 @@ const TicTacToe = ({game}) => {
   if (!nakama) {
     return <div>Loading...</div>
   }
-  
-  const calculateWinner = (squares) => {
-    const lines = [
-      [0, 1, 2], [3, 4, 5], [6, 7, 8],
-      [0, 3, 6], [1, 4, 7], [2, 5, 8],
-      [0, 4, 8], [2, 4, 6]
-    ];
-
-    for (let line of lines) {
-      const [a, b, c] = line;
-      if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-        return squares[a];
-      }
-    }
-    return null;
-  };
 
   const handleClick = async (i) => {
 
@@ -105,15 +97,12 @@ const TicTacToe = ({game}) => {
     nakama.socket.sendMatchState(nakama.matchId, 1, JSON.stringify(move_data))
   };
 
-  // const winner = calculateWinner(board);
-  // const status = winner 
-  //   ? `Winner: ${winner}`
-  //   : `Turn: ${isXNext ? 'X' : 'O'}`;
-
   const resetGame = () => {
     setBoard(Array(9).fill(null));
     setNextSymbol('X');
   };
+
+  const status = winner ? `Winner: ${winner}` : `${nextSymbol} : turn`;
 
   return (
     <div className="min-h-screen bg-teal-500 flex flex-col items-center justify-center p-4">

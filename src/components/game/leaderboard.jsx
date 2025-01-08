@@ -7,6 +7,7 @@ import { FaHourglass } from "react-icons/fa";
 const LeaderboardCurrentGame = () => {
 
     const [leaderboard, setLeaderboard] = useState([])
+    const [challenge, setChallenge] = useState(false)
     const nakama = getNakama()
 
     const secToMinAnnSec = (sec) => {
@@ -16,12 +17,18 @@ const LeaderboardCurrentGame = () => {
         return `${min} min ${sec2} sec`
     }
 
+    const handlePlayAgain = () => {
+        nakama.socket.sendMatchState(nakama.matchId, 3, JSON.stringify({"play_again": true}))
+    }
+
     useEffect(() => {
+        nakama.playAgainNotify = setChallenge
 
         const func = async () => {
             const leaderboard = await nakama.getCurrentGameLeaderboard()    
             setLeaderboard(leaderboard.owner_records)
             console.log(leaderboard)
+
         }
         func()
     },[])
@@ -63,7 +70,11 @@ const LeaderboardCurrentGame = () => {
                         </>
                     ))}
                 </div>
+            </div>
 
+            <div className="relative">
+                {challenge && <div className="absolute bottom-full left-full w-max bg-white rounded-md text-black p-2">Opponent is asking you to play again?</div>}
+                <button className="bg-teal-500 text-white p-2 rounded-md" onClick={handlePlayAgain}>Play again</button>
             </div>
         </div>
     );

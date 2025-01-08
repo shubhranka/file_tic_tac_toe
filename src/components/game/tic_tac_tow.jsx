@@ -13,8 +13,14 @@ const TicTacToe = () => {
   const [Xid, setXid] = useState('');
   const [Oid, setOid] = useState('');
   const [OName, setOName] = useState('');
-  const [nakama, setNakama] = useState(null)
   const [winner, setWinner] = useState(null)
+
+  const nakama = getNakama()
+
+  const resetGame = (gameData) => {
+    setWinner(null)
+    updateGameData(gameData)
+  };
 
   const updateGameData = (gameData) => {
       for (const presence of Object.values(gameData.presences)) {
@@ -37,13 +43,10 @@ const TicTacToe = () => {
   }
   
   useEffect(() => {
-    setNakama(nakama)
     const updateDetails = async () => {
-      const nakama = getNakama()
       nakama.updater = updateGameData
-      console.log(nakama)
+      nakama.gameRestart = resetGame
       await nakama.connectSocket()
-      setNakama(nakama)
       updateGameData(nakama.matchData)
     }
 
@@ -62,11 +65,6 @@ const TicTacToe = () => {
     }
 
     nakama.socket.sendMatchState(nakama.matchId, 1, JSON.stringify(move_data))
-  };
-
-  const resetGame = () => {
-    setBoard(Array(9).fill(null));
-    setNextSymbol('X');
   };
 
   const status = winner ? `Winner: ${winner}` : `${nextSymbol} : turn`;
@@ -107,15 +105,6 @@ const TicTacToe = () => {
           </button>
         ))}
       </div>
-
-      {/* Reset Button */}
-      <button
-        onClick={resetGame}
-        className="mt-8 px-6 py-2 bg-white/20 text-white rounded-lg
-                   hover:bg-white/30 transition-colors focus:outline-none"
-      >
-        Reset Game
-      </button>
 
       {winner && <Leaderboard />}
     </div>

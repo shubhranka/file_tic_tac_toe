@@ -12,6 +12,8 @@ class Nakama {
         this.matchId = null;
         this.updater = null;
         this.matchData = null;
+        this.playAgainNotify = null;
+        this.gameRestart = null;
 
         this.socket.onmatchmakermatched = async (matchmakerMatched) => {
             const match = await this.socket.joinMatch(matchmakerMatched.match_id)
@@ -20,14 +22,35 @@ class Nakama {
         };
 
         this.socket.onmatchdata = (matchData) => {
-            const decoder = new TextDecoder('utf-8');
-            const jsonData = decoder.decode(matchData.data);
-            const gameState = JSON.parse(jsonData);
-            this.matchData = gameState
-            console.log("match data", gameState)
-            if (this.updater) {
-                this.updater(gameState)
-            }
+
+            console.log(matchData)
+            switch (matchData.op_code) {
+                case 2:{
+                        const decoder = new TextDecoder('utf-8');
+                        const jsonData = decoder.decode(matchData.data);
+                        const gameState = JSON.parse(jsonData);
+                        this.matchData = gameState
+                        console.log("match data", gameState)
+                        if (this.updater) {
+                            this.updater(gameState)
+                        }
+                    }
+                    break;
+                case 3:
+                    this.playAgainNotify(true)
+                    break;
+                case 4:
+                    {
+                        const decoder = new TextDecoder('utf-8');
+                        const jsonData = decoder.decode(matchData.data);
+                        const gameState = JSON.parse(jsonData);
+                        this.matchData = gameState
+                        this.gameRestart(gameState)
+                    }
+                    break;
+                default:
+                    break;
+            }   
         }
     }
 

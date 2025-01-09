@@ -15,6 +15,7 @@ const TicTacToe = () => {
   const [OTimer, setOTimer] = useState(0);
   const [winner, setWinner] = useState(null);
   const [draw,setDraw] = useState(null)
+  const [disconnectedPlayers, setDisconnectedPlayers] = useState([]);
 
   const nakama = getNakama();
 
@@ -23,9 +24,15 @@ const TicTacToe = () => {
     updateGameData(gameData);
   }, []);
 
+  const getSeconds = (time) => {
+    const seconds = Date.now() - new Date(time);
+    return 30 - Math.floor(seconds / 1000);
+  };
+
   const updateGameData = (gameData) => {
     let xid,oid;
     if (!gameData) return;
+    console.log(gameData)
     for (const presence of Object.values(gameData.presences)) {
       if (gameData.players[presence.UserID] === "X") {
         xid = presence.UserID
@@ -54,8 +61,26 @@ const TicTacToe = () => {
     });
 
     setNextSymbol(gameData.players[gameData.next_turn])
+    if(xid)
     setXTimer(Math.floor(Number(gameData.player_timers[xid].time_remaining)/1000))
+    if(oid)
     setOTimer(Math.floor(Number(gameData.player_timers[oid].time_remaining)/1000))
+
+    // setDisconnectedPlayers(players => {
+    //   let changed = false
+    //   for (const player of Object.keys(gameData.disconnected_players)) {
+    //     if (!Object.keys(players).includes(player)) {
+    //         changed = true
+    //         break
+    //     }
+    //   }
+    //   if (changed) 
+    //     return gameData.disconnected_players;
+    //   else
+    //     return players
+    // });
+
+    setDisconnectedPlayers(gameData.disconnected_players);
 
     if (gameData.state === 2) {
       console.log(gameData)
@@ -100,25 +125,35 @@ const TicTacToe = () => {
       {/* Game Info */}
       <div className="mb-8 flex justify-center flex-col items-center">
         <div className="flex gap-10 text-white mb-2 text-4xl">
-          <div className="grid grid-cols-[50px,1fr] gap-7">
-            <div className="text-stone-800 font-thin text-6xl">
-              {nextSymbol == "X" ? XTimer : ""}
+          <div className={cn("grid grid-cols-[50px,1fr] gap-7",{
+                "text-red-500": Object.keys(disconnectedPlayers).includes(Xid),
+                "text-stone-800": !Object.keys(disconnectedPlayers).includes(Xid)
+              })}>
+            <div className="text-6xl font-thin">
+              { Object.keys(disconnectedPlayers).includes(Xid) ? getSeconds(disconnectedPlayers[Xid]) : nextSymbol == "X" ? XTimer : ""}
             </div>
-            <div className="text-stone-800 flex flex-col items-center">
+            <div className="flex flex-col items-center">
               <div>{nakama.id === Xid ? "You" : XName}</div>
               {/* <div>Anonymous</div> */}
               <div>(X)</div>
             </div>
           </div>
           {/* <div>Opp (O)</div> */}
-          <div className="grid grid-cols-[1fr,50px] gap-7">
-            <div className="flex flex-col items-center">
-              <div>{nakama.id === Oid ? "You" : OName}</div>
-              {/* <div>Anonymous</div> */}
+          <div className={cn("grid grid-cols-[1fr,50px] gap-7",{
+                "text-red-500": Object.keys(disconnectedPlayers).includes(Oid),
+              })}>
+            <div className="flex flex-col items-center ">
+              <div> {nakama.id === Oid ? "You" : OName}</div>
+              {/* <div className={cn({
+                "text-red-500": disconnectedPlayers.includes(Oid)
+              })}>Anonymous</div> */}
               <div>(O)</div>
             </div>
-            <div className="font-thin text-6xl">
-              {nextSymbol !== "X" ? OTimer : ""}
+            <div className={cn("font-thin text-6xl",{
+              "text-red-500": Object.keys(disconnectedPlayers).includes(Oid)
+            })}>
+              { Object.keys(disconnectedPlayers).includes(Oid) ? getSeconds(disconnectedPlayers[Oid]) : nextSymbol == "O" ? OTimer : ""}
+              {/* {nextSymbol !== "X" ? OTimer : ""} */}
             </div>
           </div>
         </div>

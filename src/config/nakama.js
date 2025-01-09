@@ -14,8 +14,10 @@ class Nakama {
         this.matchData = null;
         this.playAgainNotify = null;
         this.gameRestart = null;
+        this.handlePlayerDisconnect = null;
 
         this.socket.onmatchmakermatched = async (matchmakerMatched) => {
+            localStorage.setItem("ttt-match-id", matchmakerMatched.match_id)
             const match = await this.socket.joinMatch(matchmakerMatched.match_id)
             this.matchId = matchmakerMatched.match_id
             this.gameSetter(match)
@@ -117,6 +119,21 @@ class Nakama {
     async getCurrentGameLeaderboard() {
         const ownerIds = Object.keys(this.matchData.players)
         return await this.client.listLeaderboardRecords(this.session, "tictactoe_stats", ownerIds, 2)
+    }
+
+    async checkForExistingMatch(setGame) {
+        const matchId = localStorage.getItem("ttt-match-id")
+        if (matchId) {
+            try{
+                const match = await this.socket.joinMatch(matchId)
+                console.log("match found",match)
+                this.matchId = matchId
+                this.gameSetter = setGame
+                setGame(match)
+            }catch(e) {
+                console.log(e)
+            }
+        }
     }
 }
 

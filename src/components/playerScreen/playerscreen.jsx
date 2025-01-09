@@ -28,11 +28,11 @@ const PlayerScreen = ({setGame})=> {
         updateDetails()
     },[]);
 
-    const handleStartGame = () => {
+    const handleStartGame = (mode) => {
         setFindingGame(true)
         const nakama = getNakama()
         nakama.gameSetter = setGame
-        nakama.findPlayers()
+        nakama.findPlayers(mode)
 
     }
 
@@ -85,7 +85,8 @@ const PlayerScreen = ({setGame})=> {
                 <div className="text-2xl font-bold">Welcome 👋 {name}</div>
                 <div className="flex flex-row justify-between items-center gap-4">
                     {/* <button className=" text-white p-2 rounded-md w-full hover:border-teal-700" onClick={() => setSessionToken(null)}>Change Name</button> */}
-                    <button className="bg-teal-500 text-white p-2 rounded-md w-full" onClick={handleStartGame}>Start Game</button>
+                    <button className="bg-teal-500 text-white p-2 rounded-md w-full" onClick={() => handleStartGame("quick")}>Quick Play</button>
+                    <button className="bg-teal-500 text-white p-2 rounded-md w-full" onClick={() => handleStartGame("normal")}>Normal Play</button>
                 </div>
                 </>}
             </div>

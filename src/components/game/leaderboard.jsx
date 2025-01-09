@@ -4,7 +4,9 @@ import { GiLaurelsTrophy } from "react-icons/gi";
 import { FaHourglass } from "react-icons/fa";
 
 
-const LeaderboardCurrentGame = () => {
+const LeaderboardCurrentGame = ({draw, winner}) => {
+
+    console.log(winner)
 
     const [leaderboard, setLeaderboard] = useState([])
     const [challenge, setChallenge] = useState(false)
@@ -35,10 +37,10 @@ const LeaderboardCurrentGame = () => {
     return (
         <div className="w-screen h-screen bg-black bg-opacity-85 absolute top-0 left-0 flex flex-col gap-14 items-center justify-center">
             <div className="flex flex-col gap-4 items-center justify-center">
-                <div className="text-9xl font-bold">X</div>
+                <div className="text-9xl font-bold">{winner}</div>
                 <div className="flex flex-row justify-center items-end gap-3">
                     <div className="text-5xl font-bold uppercase text-teal-500">Winner!</div>
-                    <div className="text-2xl font-bold">+100 points</div>
+                    <div className="text-2xl font-bold">{draw ? "+30" : "+100"} points</div>
                 </div>
             </div>
 

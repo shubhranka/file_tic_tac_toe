@@ -23,14 +23,14 @@ class Nakama {
 
         this.socket.onmatchdata = (matchData) => {
 
-            console.log(matchData)
+            // console.log(matchData)
             switch (matchData.op_code) {
                 case 2:{
                         const decoder = new TextDecoder('utf-8');
                         const jsonData = decoder.decode(matchData.data);
                         const gameState = JSON.parse(jsonData);
                         this.matchData = gameState
-                        console.log("match data", gameState)
+                        // console.log("match data", gameState)
                         if (this.updater) {
                             this.updater(gameState)
                         }
@@ -56,8 +56,13 @@ class Nakama {
 
 
 
-    async findPlayers() {
-        await this.socket.addMatchmaker(null, 2, 2)
+    async findPlayers(mode) {
+
+        const query = `properties.game_mode:${mode}`
+        const properties = {
+            game_mode: mode
+        }
+        await this.socket.addMatchmaker(query, 2, 2, properties)
     }
 
     async getTokenWithAuthenticateDevice(machineId) {

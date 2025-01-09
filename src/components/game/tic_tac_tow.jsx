@@ -1,54 +1,8 @@
 // TicTacToe.jsx
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import cn from "classnames";
 import { getNakama } from "../../config/nakama";
 import Leaderboard from "./leaderboard";
-
-const data = {
-  presences: {
-    "bf3922a5-ce88-11ef-b88f-7106fdcb5b46": {
-      Node: "nakama1",
-      UserID: "ea5472c2-6559-480a-ae74-a35ab495e168",
-      SessionID: "bf3922a5-ce88-11ef-b88f-7106fdcb5b46",
-      Username: "uUSVwbIpRN",
-      Reason: 0,
-    },
-    "c077fcaa-ce88-11ef-b88f-7106fdcb5b46": {
-      Node: "nakama1",
-      UserID: "1ef3a0f9-9def-440d-8587-691ed99bd748",
-      SessionID: "c077fcaa-ce88-11ef-b88f-7106fdcb5b46",
-      Username: "tvXmZGwJsQ",
-      Reason: 0,
-    },
-  },
-  board: ["", "", "", "", "", "", "", "", ""],
-  state: 1,
-  players: {
-    "1ef3a0f9-9def-440d-8587-691ed99bd748": "X",
-    "ea5472c2-6559-480a-ae74-a35ab495e168": "O",
-  },
-  next_turn: "1ef3a0f9-9def-440d-8587-691ed99bd748",
-  winner: "",
-  start_time: 1736427230,
-  end_time: 0,
-  play_again_requests: {},
-  disconnected_players: {},
-  reconnect_window: 30000000000,
-  player_timers: {
-    "1ef3a0f9-9def-440d-8587-691ed99bd748": {
-      time_remaining: 94402,
-      last_tick_time: 1736427235679,
-      is_paused: false,
-    },
-    "ea5472c2-6559-480a-ae74-a35ab495e168": {
-      time_remaining: 100000,
-      last_tick_time: 1736427230081,
-      is_paused: true,
-    },
-  },
-  game_mode: "normal",
-  timer_duration: 100000,
-};
 
 const TicTacToe = () => {
   const [board, setBoard] = useState(Array(9).fill(""));
@@ -64,10 +18,10 @@ const TicTacToe = () => {
 
   const nakama = getNakama();
 
-  const resetGame = (gameData) => {
+  const resetGame = useCallback((gameData) => {
     setWinner(null);
     updateGameData(gameData);
-  };
+  }, []);
 
   const updateGameData = (gameData) => {
     let xid,oid;
@@ -123,7 +77,7 @@ const TicTacToe = () => {
     };
 
     updateDetails();
-  }, []);
+  }, [nakama, resetGame]);
 
   if (!nakama) {
     return <div>Loading...</div>;
@@ -195,7 +149,7 @@ const TicTacToe = () => {
         ))}
       </div>
 
-      {winner && <Leaderboard draw={draw} winner={winner} />}
+      {(winner || draw) && <Leaderboard draw={draw} winner={winner} />}
     </div>
   );
 };

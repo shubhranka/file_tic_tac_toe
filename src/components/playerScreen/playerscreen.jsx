@@ -13,13 +13,13 @@ const PlayerScreen = ({setGame})=> {
     useEffect(() => {
         const updateDetails = async () => {
 
-            const machineId = localStorage.getItem("ttt-machine-idas")
-            if (!machineId) {
+            const token = localStorage.getItem("ttt-machine-token")
+            if (!token) {
                 setLoading(false)
                 return
             }
             const nakama = getNakama()
-            await nakama.getTokenWithAuthenticateDevice(machineId)
+            await nakama.getTokenWithAuthenticateDevice(token)
             setName(nakama.username)
             setSessionToken(nakama.session.token)
             setLoading(false)
@@ -33,20 +33,12 @@ const PlayerScreen = ({setGame})=> {
         const nakama = getNakama()
         nakama.gameSetter = setGame
         nakama.findPlayers(mode)
-
     }
 
 
     const handleSubmit = async () => {
-        // let machineId = localStorage.getItem("ttt-machine-id")
-        // if (!machineId) {
-        //     machineId = crypto.randomUUID()
-        //     localStorage.setItem("ttt-machine-id", machineId)
-        // }
-        let machineId = crypto.randomUUID()
         const nakama = getNakama()
-        const token = await nakama.getTokenWithAuthenticateDeviceWithName(machineId, true, name)
-        await nakama.connectSocket()
+        const token = await nakama.getTokenWithAuthenticateDeviceWithName(name)
         setSessionToken(token)
     }
 

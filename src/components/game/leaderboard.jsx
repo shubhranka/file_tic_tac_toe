@@ -2,15 +2,16 @@ import { useEffect, useState } from "react";
 import { getNakama } from "../../config/nakama";
 import { GiLaurelsTrophy } from "react-icons/gi";
 import { FaHourglass } from "react-icons/fa";
+import PropTypes from 'prop-types';
 
 
-const LeaderboardCurrentGame = ({draw, winner}) => {
-
-    console.log(winner)
+const LeaderboardCurrentGame = ({draw, winner}) => {    
 
     const [leaderboard, setLeaderboard] = useState([])
     const [challenge, setChallenge] = useState(false)
     const nakama = getNakama()
+
+    console.log(leaderboard)
 
     const secToMinAnnSec = (sec) => {
         const min = Math.floor(sec / 60)
@@ -29,17 +30,16 @@ const LeaderboardCurrentGame = ({draw, winner}) => {
         const func = async () => {
             const leaderboard = await nakama.getCurrentGameLeaderboard()    
             setLeaderboard(leaderboard.owner_records)
-            console.log(leaderboard)
-
         }
         func()
-    },[])
+    },[nakama])
     return (
         <div className="w-screen h-screen bg-black bg-opacity-85 absolute top-0 left-0 flex flex-col gap-14 items-center justify-center">
             <div className="flex flex-col gap-4 items-center justify-center">
                 <div className="text-9xl font-bold">{winner}</div>
                 <div className="flex flex-row justify-center items-end gap-3">
-                    <div className="text-5xl font-bold uppercase text-teal-500">Winner!</div>
+                    {winner && <div className="text-5xl font-bold uppercase text-teal-500">Winner!</div>}
+                    {draw && <div className="text-5xl font-bold uppercase text-yellow-500">Draw!</div>}
                     <div className="text-2xl font-bold">{draw ? "+30" : "+100"} points</div>
                 </div>
             </div>
@@ -80,6 +80,11 @@ const LeaderboardCurrentGame = ({draw, winner}) => {
             </div>
         </div>
     );
+}
+
+LeaderboardCurrentGame.propTypes = {
+    draw: PropTypes.bool.isRequired,
+    winner: PropTypes.string.isRequired
 }
 
 export default LeaderboardCurrentGame;

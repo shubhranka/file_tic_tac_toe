@@ -1,4 +1,4 @@
-import {Client} from "@heroiclabs/nakama-js"
+import {Client, Session} from "@heroiclabs/nakama-js"
 let nakama = null
 class Nakama {
     constructor(key, host, port, ssl, timeout, debug) {
@@ -62,18 +62,32 @@ class Nakama {
         const properties = {
             game_mode: mode
         }
+        // check if socket connected
+        await this.connectSocket()
         await this.socket.addMatchmaker(query, 2, 2, properties)
     }
 
-    async getTokenWithAuthenticateDevice(machineId) {
-        this.session = await this.client.authenticateDevice(machineId, false)
+    async getTokenWithAuthenticateDevice(token) {
+        const session = Session.restore(token)
+        if (session.isexpired) {
+            const refreshToken = localStorage.getItem("ttt-machine-refersh-token")
+            this.session = new Session(token, refreshToken)
+        }else{
+            this.session = session
+        }
+        // this.session = await this.client.authenticateDevice(machineId, false)
         await this.updateDetails()
+        await this.connectSocket()
         return this.session.token
     }
 
-    async getTokenWithAuthenticateDeviceWithName(machineId, create, name) {
-        this.session = await this.client.authenticateDevice(machineId, create, name)
+    async getTokenWithAuthenticateDeviceWithName(name) {
+        const uuid = crypto.randomUUID()
+        this.session = await this.client.authenticateDevice(uuid, true, name)
+        localStorage.setItem("ttt-machine-token", this.session.token)
+        localStorage.setItem("ttt-machine-refersh-token", this.session.refresh_token)
         await this.updateDetails()
+        await this.connectSocket()
         return this.session.token
     }
 

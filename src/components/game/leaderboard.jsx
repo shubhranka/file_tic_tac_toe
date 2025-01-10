@@ -81,8 +81,8 @@ const LeaderboardCurrentGame = ({draw, winner}) => {
 
             <div className="relative">
                 {challenge && <div className="absolute bottom-full left-full w-max bg-white rounded-md text-black p-2">Opponent is asking you to play again?</div>}
-                <button className="bg-teal-500 text-white p-2 rounded-md" onClick={handlePlayAgain}>Play again</button>
                 <button className="bg-stone-800 text-teal-500 p-2 rounded-md" onClick={handleNewGame}>New Game</button>
+                <button className="bg-teal-500 text-white p-2 rounded-md" onClick={handlePlayAgain}>Play again</button>
             </div>
         </div>
     );

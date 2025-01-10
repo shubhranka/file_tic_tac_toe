@@ -147,8 +147,7 @@ class Nakama {
 export const getNakama = () => {
     console.log(uuid())
     if (nakama) return nakama
-    nakama = new Nakama("defaultkey", import.meta.env.NAKAMA_HOST, import.meta.env.NAKAMA_PORT, false, 10000, true)
+    nakama = new Nakama("defaultkey", "104.155.169.237" ,7350, false, 10000, true)
     console.log("nakama created")
     return nakama
 }
-

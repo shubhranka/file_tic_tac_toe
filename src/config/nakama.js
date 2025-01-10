@@ -1,5 +1,5 @@
 import {Client, Session} from "@heroiclabs/nakama-js"
-import crypto from 'crypto';
+import { v4 as uuid } from "uuid";
 let nakama = null
 class Nakama {
     constructor(key, host, port, ssl, timeout, debug) {
@@ -85,8 +85,8 @@ class Nakama {
     }
 
     async getTokenWithAuthenticateDeviceWithName(name) {
-        const uuid = crypto.randomUUID()
-        this.session = await this.client.authenticateDevice(uuid, true, name)
+        const id = uuid()
+        this.session = await this.client.authenticateDevice(id, true, name)
         localStorage.setItem("ttt-machine-token", this.session.token)
         localStorage.setItem("ttt-machine-refersh-token", this.session.refresh_token)
         await this.updateDetails()
@@ -145,7 +145,7 @@ class Nakama {
  * @returns {Nakama} the Nakama instance
  */
 export const getNakama = () => {
-
+    console.log(uuid())
     if (nakama) return nakama
     nakama = new Nakama("defaultkey", import.meta.env.NAKAMA_HOST, import.meta.env.NAKAMA_PORT, false, 10000, true)
     console.log("nakama created")

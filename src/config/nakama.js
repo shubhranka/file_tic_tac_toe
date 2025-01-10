@@ -1,4 +1,5 @@
 import {Client, Session} from "@heroiclabs/nakama-js"
+import crypto from 'crypto';
 let nakama = null
 class Nakama {
     constructor(key, host, port, ssl, timeout, debug) {

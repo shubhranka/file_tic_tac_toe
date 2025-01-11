@@ -95,14 +95,15 @@ class Nakama {
     }
 
     async getTokenWithAuthenticateDeviceWithName(name) {
-        const id = uuid()
-        this.session = await this.client.authenticateDevice(id, true, name)
-        localStorage.setItem("ttt-machine-token", this.session.token)
-        localStorage.setItem("ttt-machine-refersh-token", this.session.refresh_token)
-        localStorage.setItem("ttt-machine-id", id)
-        await this.updateDetails()
-        await this.connectSocket()
-        return this.session.token
+
+            const id = uuid()
+            this.session = await this.client.authenticateDevice(id, true, name)
+            localStorage.setItem("ttt-machine-token", this.session.token)
+            localStorage.setItem("ttt-machine-refersh-token", this.session.refresh_token)
+            localStorage.setItem("ttt-machine-id", id)
+            await this.updateDetails()
+            await this.connectSocket()
+            return this.session.token
     }
 
     async connectSocket() {
@@ -131,6 +132,10 @@ class Nakama {
     async getCurrentGameLeaderboard() {
         const ownerIds = Object.keys(this.matchData.players)
         return await this.client.listLeaderboardRecords(this.session, "tictactoe_stats", ownerIds, 2)
+    }
+
+    async getLeaderboard() {
+        return await this.client.listLeaderboardRecords(this.session, "tictactoe_stats", null, 10)
     }
 
     async checkForExistingMatch(setGame) {

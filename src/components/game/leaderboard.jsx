@@ -32,22 +32,29 @@ const LeaderboardCurrentGame = ({draw, winner}) => {
     useEffect(() => {
         nakama.playAgainNotify = setChallenge
 
+
         const func = async () => {
-            const leaderboard = await nakama.getCurrentGameLeaderboard()    
-            setLeaderboard(leaderboard.owner_records)
+            if (draw || winner){
+                const leaderboard = await nakama.getCurrentGameLeaderboard()    
+                setLeaderboard(leaderboard.owner_records)
+            }else{
+                const leaderboard = await nakama.getLeaderboard()
+                console.log(leaderboard, "useeffect")
+                setLeaderboard(leaderboard.records)
+            }
         }
         func()
-    },[nakama])
+    },[nakama,draw,winner])
     return (
         <div className="w-screen h-screen bg-black bg-opacity-85 absolute top-0 left-0 flex flex-col gap-14 items-center justify-center">
-            <div className="flex flex-col gap-4 items-center justify-center">
+            {(draw || winner) && <div className="flex flex-col gap-4 items-center justify-center">
                 <div className="text-9xl font-bold">{winner}</div>
                 <div className="flex flex-row justify-center items-end gap-3">
                     {winner && <div className="text-5xl font-bold uppercase text-teal-500">Winner!</div>}
                     {draw && <div className="text-5xl font-bold uppercase text-yellow-500">Draw!</div>}
                     <div className="text-2xl font-bold">{draw ? "+30" : "+100"} points</div>
                 </div>
-            </div>
+            </div>}
 
             <div className="flex flex-col gap-4 items-center justify-center">
                 <GiLaurelsTrophy className="text-6xl text-teal-500" />
@@ -81,16 +88,16 @@ const LeaderboardCurrentGame = ({draw, winner}) => {
 
             <div className="relative">
                 {challenge && <div className="absolute bottom-full left-full w-max bg-white rounded-md text-black p-2">Opponent is asking you to play again?</div>}
-                <button className="bg-stone-800 text-teal-500 p-2 rounded-md" onClick={handleNewGame}>New Game</button>
-                <button className="bg-teal-500 text-white p-2 rounded-md" onClick={handlePlayAgain}>Play again</button>
+                <button className="bg-stone-800 text-teal-500 p-2 rounded-md" onClick={handleNewGame}>{(draw || winner) ? "New Game" : "Close"}</button>
+                {(draw || winner) && <button className="bg-teal-500 text-white p-2 rounded-md focus:outline-none" onClick={handlePlayAgain}>Play again</button>}
             </div>
         </div>
     );
 }
 
 LeaderboardCurrentGame.propTypes = {
-    draw: PropTypes.bool.isRequired,
-    winner: PropTypes.string.isRequired
+    draw: PropTypes.bool,
+    winner: PropTypes.string
 }
 
 export default LeaderboardCurrentGame;

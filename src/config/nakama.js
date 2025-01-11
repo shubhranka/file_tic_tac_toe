@@ -71,8 +71,10 @@ class Nakama {
     }
 
     async getTokenWithAuthenticateDevice(token) {
-        const session = Session.restore(token)
-        if (session.isexpired) {
+        try {
+
+            const session = Session.restore(token)
+            if (session.isexpired) {
             const refreshToken = localStorage.getItem("ttt-machine-refersh-token")
             this.session = new Session(token, refreshToken)
         }else{
@@ -82,6 +84,14 @@ class Nakama {
         await this.updateDetails()
         await this.connectSocket()
         return this.session.token
+        } catch (error) {
+            const machineId = localStorage.getItem("ttt-machine-id")
+            if (!machineId) return null
+            this.session = await this.client.authenticateDevice(machineId, false)
+            await this.updateDetails()
+            await this.connectSocket()
+            return this.session.token
+        }
     }
 
     async getTokenWithAuthenticateDeviceWithName(name) {
@@ -89,6 +99,7 @@ class Nakama {
         this.session = await this.client.authenticateDevice(id, true, name)
         localStorage.setItem("ttt-machine-token", this.session.token)
         localStorage.setItem("ttt-machine-refersh-token", this.session.refresh_token)
+        localStorage.setItem("ttt-machine-id", id)
         await this.updateDetails()
         await this.connectSocket()
         return this.session.token
@@ -132,7 +143,7 @@ class Nakama {
                 this.gameSetter = setGame
                 setGame(match)
             }catch(e) {
-                console.log(e)
+                localStorage.removeItem("ttt-match-id")
             }
         }
     }
